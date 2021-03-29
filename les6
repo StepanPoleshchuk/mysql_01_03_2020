@@ -70,4 +70,4 @@ SELECT
     (SELECT count(*) FROM message WHERE from_user_id = `profile`.user_id) as activity
 FROM vk.profile
 order by activity
-limit 10
+limit 10;
