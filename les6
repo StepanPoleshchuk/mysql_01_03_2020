@@ -1,1 +1,73 @@
+-- Пусть задан некоторый пользователь. 
+-- Из всех друзей этого пользователя найдите человека, который больше всех общался с нашим пользователем.
 
+SELECT
+to_user_id,
+count(*) as cnt
+FROM vk.message
+GROUP BY to_user_id
+ORDER BY cnt desc
+limit 1;
+-- узнали ID у которого больше всех входящих сообщений, используем этот запрос
+
+SELECT
+  -- from_user_id,
+  -- to_user_id,
+  (SELECT firstname from `profile` where from_user_id = `profile`.user_id) as fromwho,
+  (SELECT firstname from `profile` where to_user_id = `profile`.user_id) as forwhom,
+  count(*) as cnt
+from message
+where to_user_id = (
+	SELECT
+	to_user_id
+	-- count(*) as cnt
+	FROM vk.message
+	GROUP BY to_user_id
+	ORDER BY count(*) desc
+	limit 1)
+group by from_user_id
+order by cnt desc
+limit 1;
+
+
+-- Подсчитать общее количество лайков, которые получили 10 самых молодых пользователей.
+
+select 
+	user_id,
+    concat(firstname, ' ', lastname),
+    (SELECT
+		count(*) as cnt
+	FROM vk.`like`
+    where `like`.user_id = `profile`.user_id
+	group by user_id
+    ) as counting
+from profile
+order by birthday desc
+limit 10;
+
+
+-- Определить кто больше поставил лайков (всего) - мужчины или женщины?
+-- в бд огромное количество лайков, вероятность что их количество сравняется близка к нулю))
+
+select
+  (select gender from `profile` where `profile`.user_id = `like`.user_id) as gender,
+  count(*) as gender_cnt
+from `like`
+group by gender
+limit 1;
+
+
+-- Найти 10 пользователей, которые проявляют наименьшую активность в использовании социальной сети.
+-- для большой бд введем коффициенты для сообщений (активность в соцсети выявляется в основном постами, медиа, и лайками)
+
+SELECT
+	*,
+    (SELECT count(*) FROM post WHERE user_id = `profile`.user_id) +
+    (SELECT count(*) FROM media WHERE user_id = `profile`.user_id) +
+    (SELECT count(*) FROM `like` WHERE user_id = `profile`.user_id) +
+  	(SELECT count(*) FROM user_community WHERE user_id = `profile`.user_id) +
+    (SELECT count(*) FROM friend_request WHERE from_user_id = `profile`.user_id) +
+    (SELECT count(*) FROM message WHERE from_user_id = `profile`.user_id) as activity
+FROM vk.profile
+order by activity
+limit 10
