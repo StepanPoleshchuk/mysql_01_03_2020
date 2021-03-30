@@ -19,8 +19,8 @@ SELECT
 from message
 where to_user_id = (
 	SELECT
-	to_user_id
-	-- count(*) as cnt
+		to_user_id
+		-- count(*) as cnt
 	FROM vk.message
 	GROUP BY to_user_id
 	ORDER BY count(*) desc
@@ -32,18 +32,22 @@ limit 1;
 
 -- Подсчитать общее количество лайков, которые получили 10 самых молодых пользователей.
 
-select 
-	user_id,
-    concat(firstname, ' ', lastname),
-    (SELECT
-		count(*) as cnt
-	FROM vk.`like`
-    where `like`.user_id = `profile`.user_id
-	group by user_id
-    ) as counting
-from profile
-order by birthday desc
-limit 10;
+select
+	sum(counting)
+from
+	(select 
+		user_id,
+		-- concat(firstname, ' ', lastname),
+		(SELECT
+			count(*) as cnt
+		FROM vk.`like`
+		where `like`.user_id = `profile`.user_id
+		group by user_id
+		) as counting
+	from profile
+	order by birthday desc
+	limit 10) as T;
+
 
 
 -- Определить кто больше поставил лайков (всего) - мужчины или женщины?
