@@ -1,0 +1,40 @@
+-- 1) Составьте список пользователей users, которые осуществили хотя бы один заказ orders в интернет магазине.
+-- (либо distinct либо group by)
+SELECT
+    u.`name`
+    -- count(*)
+FROM shop.orders as o
+JOIN shop.users as u
+where o.user_id = u.id
+group by u.`name`;
+
+
+
+-- 2) Выведите список товаров products и разделов catalogs, который соответствует товару.
+-- (надеюсь задание понял правильно, сделаю двумаю способами, используя join либо вложенный запрос)
+SELECT
+	p.`name` as 'product name',
+  c.`name` as 'category name'
+FROM shop.products as p
+JOIN shop.catalogs as c
+where p.catalog_id = c.id;
+
+SELECT
+	`name` as 'product name',
+  (SELECT `name` FROM catalogs WHERE catalog_id = catalogs.id) as 'category name'
+FROM products;
+
+
+
+-- 3) (по желанию) Пусть имеется таблица рейсов flights (id, from, to) и таблица городов cities (label, name). Поля from, to и label содержат английские названия городов, поле name — русское. Выведите список рейсов flights с русскими названиями городов.
+SELECT
+	f.`from`,
+	f.`to`,
+	from_c.`name` as 'отправление',
+	to_c.`name` as 'прибытие'
+from flights as f
+join cities as from_c -- для столбца вылета
+join cities as to_c -- для столбца прибытия
+on
+	f.`from` = from_c.lable and f.`to` = to_c.lable;
+  
