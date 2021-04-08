@@ -25,3 +25,12 @@ JOIN shop.catalogs ON shop.catalogs.id = shop.products.catalog_id;
 
 -- SHOW TABLES FROM shop; -- можем увидеть представление как таблицу 
 -- SELECT * FROM task_2; -- можем обратиться как к таблице
+
+
+-- 1) Администрирование MySQL. Создайте двух пользователей которые имеют доступ к базе данных shop. Первому пользователю shop_read должны быть доступны только запросы на чтение данных, второму пользователю shop — любые операции в пределах базы данных shop.
+
+CREATE USER 'shop_read'@'localhost' IDENTIFIED WITH sha256_password BY 'password';  -- зададим пассворд
+GRANT SELECT ON shop.* TO 'shop_read'@'localhost';
+
+CREATE USER 'shop'@'localhost' IDENTIFIED WITH sha256_password BY 'password';
+GRANT ALL ON shop.* TO 'shop'@'localhost';
