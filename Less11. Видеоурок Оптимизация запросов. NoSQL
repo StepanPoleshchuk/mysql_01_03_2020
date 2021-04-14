@@ -1,0 +1,40 @@
+-- 1) Оптимизация запросов. Создайте таблицу logs типа Archive. Пусть при каждом создании записи в таблицах users, catalogs и products в таблицу logs помещается время и дата создания записи, название таблицы, идентификатор первичного ключа и содержимое поля name.
+
+-- создаем таблицу логс, используем движок archive
+CREATE TABLE `shop`.`logs` (
+  `created_at` DATETIME NOT NULL,
+  `table_name` VARCHAR(45) NOT NULL,
+  `id` INT UNSIGNED NOT NULL UNSIGNED,
+  `name` VARCHAR(45) NOT NULL)
+ENGINE = ARCHIVE;
+
+-- создаем триггеры на добавление в logs после удачной вставки в таблицы users, catalogs и products
+DROP TRIGGER IF EXISTS `shop`.`logs_users_AFTER_INSERT`;
+DELIMITER $$
+USE `shop`$$
+CREATE TRIGGER `shop`.`logs_users_AFTER_INSERT` AFTER INSERT ON `users` FOR EACH ROW
+BEGIN
+	INSERT INTO `logs` (created_at, `table_name`, id, `name`)
+	VALUES (NOW(), 'users', NEW.id, NEW.`name`);
+END$$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS `shop`.`logs_catalogs_AFTER_INSERT`;
+DELIMITER $$
+USE `shop`$$
+CREATE TRIGGER `shop`.`logs_catalogs_AFTER_INSERT` AFTER INSERT ON `catalogs` FOR EACH ROW
+BEGIN
+	INSERT INTO `logs` (created_at, `table_name`, id, `name`)
+	VALUES (NOW(), 'catalogs', NEW.id, NEW.`name`);
+END$$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS `shop`.`logs_products_AFTER_INSERT`;
+DELIMITER $$
+USE `shop`$$
+CREATE TRIGGER `shop`.`logs_products_AFTER_INSERT` AFTER INSERT ON `products` FOR EACH ROW
+BEGIN
+	INSERT INTO `logs` (created_at, `table_name`, id, `name`)
+	VALUES (NOW(), 'products', NEW.id, NEW.`name`);
+END$$
+DELIMITER ;
